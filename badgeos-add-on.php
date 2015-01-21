@@ -46,6 +46,29 @@ class BadgeOS_Set_Goals {
 
 		// Include our other plugin files
 		add_action( 'init', array( $this, 'includes' ) );
+		add_action( 'init', array( $this, 'register_scripts_and_styles' ) );
+        add_action( 'init', 'badgeos_register_goals_list_shortcode' );
+        // hook some badgeos functions
+        add_action( 'wp_enqueue_scripts', array( $this, 'badgeos_set_goals_addon_script'));
+        // Remove some action for replacement
+        remove_action('wp_ajax_get-achievements',1);
+        remove_action('wp_ajax_no_priv_get-achievements',1);
+        add_action( 'wp_ajax_get-achievements', 'badgeos_ajax_set_goals_get_achievements', 1 );
+        add_action( 'wp_ajax_nopriv_get-achievements', 'badgeos_ajax_set_goals_get_achievements', 1 );
+        // Setup our badgeos / Goals AJAX actions
+        $badgeos_ajax_actions = array(
+            'update_goals_on_action',
+        );
+        // Register core Ajax calls.
+        foreach ( $badgeos_ajax_actions as $action ) {
+        	add_action( 'wp_ajax_' . $action, 'badgeos_ajax_' . str_replace( '-', '_', $action ), 1 );
+        	add_action( 'wp_ajax_nopriv_' . $action, 'badgeos_ajax_' . str_replace( '-', '_', $action ), 1 );
+        }
+        add_action( 'edit_user_profile', 'save_aimed_badges' );
+        add_action( 'show_user_profile', 'show_aimed_badges' );
+        add_action( 'edit_user_profile_update', 'save_aimed_badges' );
+        add_action( 'personal_options_update', 'save_aimed_badges' );
+        add_action( 'badgeos_award_achievement', 'badgeos_set_goals_update_goals_on_award', 10, 2);
 
 	} /* __construct() */
 
@@ -60,9 +83,32 @@ class BadgeOS_Set_Goals {
 		// If BadgeOS is available...
         if ( $this->meets_requirements() ) {
             require_once( $this->directory_path . '/includes/goals.php' );
+            require_once( $this->directory_path . '/includes/ajax_functions.php' );
+            require_once( $this->directory_path . '/includes/shortcodes/badgeos_goals_list.php' );
 		}
 
 	} /* includes() */
+
+	/**
+	 * Register all set goals scripts and styles
+	 *
+	 * @since  1.3.0
+	 */
+	function register_scripts_and_styles() {
+		// Register scripts
+        wp_register_script( 'badgeos-set-goals-achievements', $this->directory_url . '/js/badgeos-set-goals-achievements.js', array( 'jquery' ), '1.1.0', true );
+    }
+
+    /**
+     * Add filters 
+     *
+     * @since 1.0.0
+     * @return null
+     */
+    function badgeos_set_goals_addon_script() {
+    	wp_enqueue_script( 'badgeos-set-goals-achievements' );
+//        wp_send_json_error($this->directory_url . '/js/badgeos-set-goals-achievements.js');
+    }
 
 	/**
 	 * Activation hook for the plugin.
