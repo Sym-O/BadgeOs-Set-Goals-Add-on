@@ -174,32 +174,17 @@ function badgeos_ajax_set_goals_get_achievements() {
             $args[ 'tag__in' ] = $tag;
         }
 
-        // Get user's goals
+        // Get user's goals & Make sure our script is loader
         $goals_array =  badgeos_get_user_goals( $user_id );
-        // DEBUG $achievements .= "GOALS: ".join("/",$goals_array).' // Show goals only '.$show_goals;//TODO
-        // Make sure our script is loader
         wp_enqueue_script( 'badgeos-set-goals-achievements' );
+        // DEBUG $achievements .= "GOALS: ".join("/",$goals_array).' // Show goals only '.$show_goals;//TODO
 
 		// Loop Achievements
 		$achievement_posts = new WP_Query( $args );
 		$query_count += ($show_goals === "true")? count($goals_array) : $achievement_posts->found_posts;
 		while ( $achievement_posts->have_posts() ) : $achievement_posts->the_post();
-            if ( $show_goals === "true" && !in_array( get_the_ID(), $goals_array ) ) {
-                // Skip achievement because we want to display only goals
-            }
-            else {
-                $achievement = badgeos_render_achievement( get_the_ID());
-                // Add set-goals button
-                if ( in_array( get_the_ID() , $goals_array ) )
-                    $button_image = ( badgeos_get_user_achievements( array( 'user_id' => $user_id, 'achievement_id' => get_the_ID()) ) ) ? '*' : '-';
-                else
-                    $button_image = ( badgeos_get_user_achievements( array( 'user_id' => $user_id, 'achievement_id' => get_the_ID()) ) ) ? '!' : '+';
-                $button = '<div><button class="goal-action" value="'.get_the_ID().'">'.$button_image.'</button></div>';
-                $achievement = str_replace("<!-- .badgeos-item-image -->","<!-- .badgeos-item-image -->".$button, $achievement);
-                // Then continue
-                $achievements .= $achievement; 
+                $achievements .= badgeos_set_goals_filter(get_the_ID(), badgeos_render_achievement(get_the_ID()), $show_goals, $goals_array, $layout); 
                 $achievement_count++;
-            }
 		endwhile;
 
 		// Sanity helper: if we're filtering for complete and we have no

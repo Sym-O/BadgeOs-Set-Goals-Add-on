@@ -1,0 +1,15 @@
+.goal-action-container {
+    position:relative;
+}
+.badgeos-achievements-grid-item .goal-action {
+    position:absolute; 
+    top: 0; 
+    right:10px; 
+    z-index: 10;
+}
+.badgeos-achievements-list-item .goal-action {
+    float: left;
+}
+.goal-action img {
+    cursor:pointer;
+}

@@ -50,7 +50,7 @@ class BadgeOS_Set_Goals {
         add_action( 'init', 'badgeos_register_goals_list_shortcode' );
         // hook some badgeos functions
         add_action( 'wp_enqueue_scripts', array( $this, 'badgeos_set_goals_addon_script'));
-        // Remove some action for replacement
+        // Replace some badgeos base action
         remove_action('wp_ajax_get-achievements',1);
         remove_action('wp_ajax_no_priv_get-achievements',1);
         add_action( 'wp_ajax_get-achievements', 'badgeos_ajax_set_goals_get_achievements', 1 );
@@ -64,11 +64,12 @@ class BadgeOS_Set_Goals {
         	add_action( 'wp_ajax_' . $action, 'badgeos_ajax_' . str_replace( '-', '_', $action ), 1 );
         	add_action( 'wp_ajax_nopriv_' . $action, 'badgeos_ajax_' . str_replace( '-', '_', $action ), 1 );
         }
+        // Admin hook
         add_action( 'edit_user_profile', 'save_aimed_badges' );
         add_action( 'show_user_profile', 'show_aimed_badges' );
         add_action( 'edit_user_profile_update', 'save_aimed_badges' );
         add_action( 'personal_options_update', 'save_aimed_badges' );
-        add_action( 'badgeos_award_achievement', 'badgeos_set_goals_update_goals_on_award', 10, 2);
+        //add_action( 'badgeos_award_achievement', 'badgeos_set_goals_update_goals_on_award', 10, 2);
 
 	} /* __construct() */
 
@@ -97,6 +98,7 @@ class BadgeOS_Set_Goals {
 	function register_scripts_and_styles() {
 		// Register scripts
         wp_register_script( 'badgeos-set-goals-achievements', $this->directory_url . '/js/badgeos-set-goals-achievements.js', array( 'jquery' ), '1.1.0', true );
+		wp_register_style( 'badgeos-set-goals-front', $this->directory_url . '/css/badgeos-set-goals-front.css', null, '1.0.1' );
     }
 
     /**
@@ -107,7 +109,7 @@ class BadgeOS_Set_Goals {
      */
     function badgeos_set_goals_addon_script() {
     	wp_enqueue_script( 'badgeos-set-goals-achievements' );
-//        wp_send_json_error($this->directory_url . '/js/badgeos-set-goals-achievements.js');
+	    wp_enqueue_style( 'badgeos-set-goals-front' );
     }
 
 	/**
@@ -179,3 +181,11 @@ class BadgeOS_Set_Goals {
 
 // Instantiate our class to a global variable that we can access elsewhere
 $GLOBALS['badgeos_set_goals'] = new BadgeOS_Set_Goals();
+
+function badgeos_set_goals_get_directory_path() {
+	return $GLOBALS['badgeos_set_goals']->directory_path;
+}
+function badgeos_set_goals_get_directory_url() {
+	return $GLOBALS['badgeos_set_goals']->directory_url;
+}
+

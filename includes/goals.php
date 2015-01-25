@@ -138,3 +138,40 @@ function save_aimed_badges( $user_id ) {
 }
 
 
+ /* AJAX Helper for inserting goals elements in achievement rendering
+ *
+ * @since 1.0.0
+ * @return void
+ */
+function badgeos_set_goals_filter($achievement_id, $achievement_html, $show_goals, $goals_array, $layout){
+    if ( $show_goals === "true" && !in_array( $achievement_id, $goals_array ) ) {
+        // Skip achievement because we want to display only goals
+        return "";
+    }
+    else {
+        $achieved = badgeos_get_user_achievements( array( 'user_id' => $user_id, 'achievement_id' => get_the_ID()) );
+        $in_goals = in_array( get_the_ID() , $goals_array );
+
+        // build button
+        if ( $achieved && !$in_goals)
+            $button = '';
+        else if ($achieved && $in_goals)
+            $button = '<div class="goal-action"><img  class="goal-no-action" value="'.get_the_ID().'" src="'.badgeos_set_goals_get_directory_url().'/images/goal-success.png"></img></div>';
+        else if (!$achieved && $in_goals)                                                            
+            $button = '<div class="goal-action"><img class="goal-action-img" value="'.get_the_ID().'" src="'.badgeos_set_goals_get_directory_url().'/images/goal-set.png"></img>    </div>';
+        else                                                                                         
+            $button = '<div class="goal-action"><img class="goal-action-img" value="'.get_the_ID().'" src="'.badgeos_set_goals_get_directory_url().'/images/goal-to-set.png"></img> </div>';
+            
+        // Add button depending on layout
+        if ($layout == "list"){
+            $achievement_html = str_replace("<!-- .badgeos-item-image -->","<!-- .badgeos-item-image -->".$button, $achievement_html);
+            return $achievement_html;
+        }
+        else {
+            $button = '<div class="goal-action-container">'.$button;
+            $achievement_html = str_replace('<div class="badgeos-item-image">',$button.'<div class="badgeos-item-image">', $achievement_html);
+            $achievement_html = str_replace("<!-- .badgeos-item-image -->","</div><!-- .badgeos-item-image -->", $achievement_html);
+            return $achievement_html;
+        }
+    }
+}

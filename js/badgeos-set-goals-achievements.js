@@ -1,6 +1,7 @@
 jQuery( function( $ ) {
-    $('#badgeos-achievements-container').hover(function(){
-        $( '.goal-action' ).click(function (e) {
+    $('#badgeos-achievements-container').mouseenter(function(){
+        $( ".goal-action-img" ).unbind();
+        $( '.goal-action-img' ).click(function (e) {
             $.ajax( {
                 url: badgeos.ajax_url,
                 data: {
@@ -10,11 +11,13 @@ jQuery( function( $ ) {
                 },
                 dataType : 'json',
                 success : function( response ) {
-                    if ( e.target.innerHTML == '+' )
-                        e.target.innerHTML = '-';
-                    else
-                        e.target.innerHTML = '+';
-                    // notify user TODO
+                    var src = e.target.src;
+                    if ( src.indexOf( "goal-to-set.png" ) != -1 )
+                        e.target.src = src.replace('goal-to-set.png', 'goal-set.png');
+                    else {
+                        e.target.src = src.replace('goal-set.png', 'goal-to-set.png');
+                        // notify user TODO
+                    }
                 }
             });
         });
