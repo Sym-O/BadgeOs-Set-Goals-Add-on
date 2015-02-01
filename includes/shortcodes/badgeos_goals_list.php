@@ -28,12 +28,13 @@ function badgeos_register_goals_list_shortcode() {
 				'values'      => $achievement_types,
 				'default'     => 'all',
 				),
-			'limit' => array(
-				'name'        => __( 'Limit', 'badgeos' ),
-				'description' => __( 'Number of achievements to display.', 'badgeos' ),
-				'type'        => 'text',
-				'default'     => 10,
-				),
+            // shortcode don't let user choose number of goals displayed.
+            //'limit' => array(
+			//	'name'        => __( 'Limit', 'badgeos' ),
+			//	'description' => __( 'Number of achievements to display.', 'badgeos' ),
+			//	'type'        => 'text',
+			//	'default'     => 10,
+			//	),
 			'show_filter' => array(
 				'name'        => __( 'Show Filter', 'badgeos' ),
 				'description' => __( 'Display filter controls.', 'badgeos' ),
@@ -118,19 +119,10 @@ function badgeos_register_goals_list_shortcode() {
 				'values'      => $achievement_tags,
                 'default'     => 'all',
                 ),
-            'show_goals' => array(
-                'name'       => __( 'Show Goals', 'badgeos' ),
-                'description'=> __( 'Display only goals', 'badgeos' ),
-				'type'        => 'select',
-				'values'      => array(
-					'true'  => __( 'True', 'badgeos' ),
-					'false' => __( 'False', 'badgeos' )
-					),
-				'default'     => 'True',
-			    ),
 		),
 	) );
 }
+add_action( 'init', 'badgeos_register_goals_list_shortcode', 11 );
 
 /**
  * Achievement List Shortcode.
@@ -146,10 +138,11 @@ function badgeos_goals_list_shortcode( $atts = array () ){
 	if ( isset( $GLOBALS['badgeos_goals_list'] ) )
 		return '';
 
-	global $user_ID;
+    global $user_ID;
+    // Note : goals shortcode will display up to 30 goals, no more (js file is implemented according to this)
 	extract( shortcode_atts( array(
 		'type'        => 'all',
-		'limit'       => '10',
+		'limit'       => '30',
 		'show_filter' => true,
 		'show_search' => true,
 		'group_id'    => '0',
@@ -163,7 +156,7 @@ function badgeos_goals_list_shortcode( $atts = array () ){
         'meta_value'  => '',
         'layout'      => 'list',
 		'tag'         => 'all',
-        'show_goals'  => 'false',
+        'show_goals'  => 'true',
 	), $atts, 'badgeos_goals_list' ) );
 
 	wp_enqueue_style( 'badgeos-front' );

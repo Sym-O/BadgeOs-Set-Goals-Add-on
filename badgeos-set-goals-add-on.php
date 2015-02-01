@@ -34,8 +34,8 @@ class BadgeOS_Set_Goals {
 		$this->directory_path = plugin_dir_path( __FILE__ );
 		$this->directory_url  = plugins_url( dirname( $this->basename ) );
 
-		// Load translations
-		load_plugin_textdomain( 'badgeos-set-goals', false, dirname( $this->basename ) . '/languages' );
+		// Load translations : no need for now
+		// load_plugin_textdomain( 'badgeos-set-goals', false, dirname( $this->basename ) . '/languages' );
 
 		// Run our activation and deactivation hooks
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
@@ -45,31 +45,9 @@ class BadgeOS_Set_Goals {
 		add_action( 'admin_notices', array( $this, 'maybe_disable_plugin' ) );
 
 		// Include our other plugin files
-		add_action( 'init', array( $this, 'includes' ) );
+		add_action( 'plugins_loaded', array( $this, 'includes' ) );
 		add_action( 'init', array( $this, 'register_scripts_and_styles' ) );
-        add_action( 'init', 'badgeos_register_goals_list_shortcode' );
-        // hook some badgeos functions
         add_action( 'wp_enqueue_scripts', array( $this, 'badgeos_set_goals_addon_script'));
-        // Replace some badgeos base action
-        remove_action('wp_ajax_get-achievements',1);
-        remove_action('wp_ajax_no_priv_get-achievements',1);
-        add_action( 'wp_ajax_get-achievements', 'badgeos_ajax_set_goals_get_achievements', 1 );
-        add_action( 'wp_ajax_nopriv_get-achievements', 'badgeos_ajax_set_goals_get_achievements', 1 );
-        // Setup our badgeos / Goals AJAX actions
-        $badgeos_ajax_actions = array(
-            'update_goals_on_action',
-        );
-        // Register core Ajax calls.
-        foreach ( $badgeos_ajax_actions as $action ) {
-        	add_action( 'wp_ajax_' . $action, 'badgeos_ajax_' . str_replace( '-', '_', $action ), 1 );
-        	add_action( 'wp_ajax_nopriv_' . $action, 'badgeos_ajax_' . str_replace( '-', '_', $action ), 1 );
-        }
-        // Admin hook
-        add_action( 'edit_user_profile', 'save_aimed_badges' );
-        add_action( 'show_user_profile', 'show_aimed_badges' );
-        add_action( 'edit_user_profile_update', 'save_aimed_badges' );
-        add_action( 'personal_options_update', 'save_aimed_badges' );
-        //add_action( 'badgeos_award_achievement', 'badgeos_set_goals_update_goals_on_award', 10, 2);
 
 	} /* __construct() */
 

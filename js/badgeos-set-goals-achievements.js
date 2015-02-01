@@ -1,6 +1,6 @@
 jQuery( function( $ ) {
     $('#badgeos-achievements-container').mouseenter(function(){
-        $( ".goal-action-img" ).unbind();
+        $( '.goal-action-img' ).unbind();
         $( '.goal-action-img' ).click(function (e) {
             $.ajax( {
                 url: badgeos.ajax_url,
@@ -58,16 +58,16 @@ jQuery( function( $ ) {
 						}
 						else {
 							$( '#badgeos-achievements-container' ).append( response.data.message );
-                            //$( '.bucket' ).click(handle_bucket);//TODO D2SI
 							$( '#badgeos_achievements_offset' ).val( response.data.offset );
 							$( '#badgeos_achievements_count' ).val( response.data.badge_count );
 							//credlyize();
 							//hide/show load more button
-							if ( response.data.query_count <= response.data.badge_count ) {
+							if ( $( '.badgeos-achievements-grid-item' ).length < 30 ) {
 								$( '#goals_list_load_more' ).hide();
 							}
 							else {
-								$( '#goals_list_load_more' ).show();
+								$( '#badgeos-achievements-container' ).height( Math.ceil(($( '.badgeos-achievements-grid-item' ).length / 5))*200);
+                                $( '#goals_list_load_more' ).show();
 							}
 						}
 					}
