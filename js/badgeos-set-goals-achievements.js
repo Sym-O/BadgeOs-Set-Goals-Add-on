@@ -3,11 +3,11 @@ jQuery( function( $ ) {
         $( '.goal-action-img' ).unbind();
         $( '.goal-action-img' ).click(function (e) {
             $.ajax( {
-                url: badgeos.ajax_url,
+                url: badgeos_set_goals.ajax_url,
                 data: {
                     'action'  : 'update_goals_on_action',
                     'achievement_id': this.getAttribute( 'value' ),
-                    'user_id' : badgeos.user_id,
+                    'user_id' : badgeos_set_goals.user_id,
                 },
                 dataType : 'json',
                 success : function( response ) {

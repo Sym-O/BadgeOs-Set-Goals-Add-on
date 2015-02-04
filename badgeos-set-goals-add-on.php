@@ -88,6 +88,14 @@ class BadgeOS_Set_Goals {
     function badgeos_set_goals_addon_script() {
     	wp_enqueue_script( 'badgeos-set-goals-achievements' );
 	    wp_enqueue_style( 'badgeos-set-goals-front' );
+	    
+        global $user_ID;
+
+    	$data = array(
+    		'ajax_url'    => esc_url( admin_url( 'admin-ajax.php', 'relative' ) ),
+    		'user_id'     => $user_ID,
+    	);
+    	wp_localize_script( 'badgeos-set-goals-achievements', 'badgeos_set_goals', $data );
     }
 
 	/**
