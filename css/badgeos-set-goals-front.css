@@ -5,7 +5,7 @@
     position:absolute; 
     top: 0; 
     right:10px; 
-    z-index: 10;
+    z-index: 5;
 }
 .badgeos-achievements-list-item .goal-action {
     float: left;
