@@ -105,11 +105,11 @@ function badgeos_set_goals_filter($achievement_html, $achievement_id, $goals_arr
         // build button
         $button = '';
         if ($achieved && $in_goals)
-            $button = '<div class="goal-action"><img  class="goal-no-action" value="'.$achievement_id.'" src="'.badgeos_set_goals_get_directory_url().'/images/goal-success.png"></img></div>';
+            $button = '<div class="goal-action"><img class="goal-no-action"  value="'.$achievement_id.'" src="'.badgeos_set_goals_get_directory_url().'/images/goal-success.png" title="Goal achieved"></img></div>';
         else if (!$achieved && $in_goals)
-            $button = '<div class="goal-action"><img class="goal-action-img" value="'.$achievement_id.'" src="'.badgeos_set_goals_get_directory_url().'/images/goal-set.png"></img>    </div>';
+            $button = '<div class="goal-action"><img class="goal-action-img" value="'.$achievement_id.'" src="'.badgeos_set_goals_get_directory_url().'/images/goal-set.png" title="Click to UNset Goal"></img></div>';
         else if (!$achieved && !$in_goals)
-            $button = '<div class="goal-action"><img class="goal-action-img" value="'.$achievement_id.'" src="'.badgeos_set_goals_get_directory_url().'/images/goal-to-set.png"></img> </div>';
+            $button = '<div class="goal-action"><img class="goal-action-img" value="'.$achievement_id.'" src="'.badgeos_set_goals_get_directory_url().'/images/goal-to-set.png" title="Click to SET Goal"></img></div>';
         
         // Add button depending on layout
         if ($layout == "list"){

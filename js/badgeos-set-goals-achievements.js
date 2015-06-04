@@ -2,6 +2,17 @@ jQuery( function( $ ) {
     $('#badgeos-achievements-container').mouseenter(function(){
         $( '.goal-action-img' ).unbind();
         $( '.goal-action-img' ).click(function (e) {
+            var src = e.target.src;
+            var srcOrigin;
+            var srcTarget;
+            if ( src.indexOf( "goal-to-set.png" ) != -1 ) {
+                srcOrigin = 'goal-to-set.png';
+                srcTarget = 'goal-set.png';
+            } else {
+                srcOrigin = 'goal-set.png';
+                srcTarget = 'goal-to-set.png';
+            }
+            e.target.src = src.replace(srcOrigin, 'spinner.gif');
             $.ajax( {
                 url: badgeos_set_goals.ajax_url,
                 data: {
@@ -11,13 +22,12 @@ jQuery( function( $ ) {
                 },
                 dataType : 'json',
                 success : function( response ) {
-                    var src = e.target.src;
-                    if ( src.indexOf( "goal-to-set.png" ) != -1 )
-                        e.target.src = src.replace('goal-to-set.png', 'goal-set.png');
-                    else {
-                        e.target.src = src.replace('goal-set.png', 'goal-to-set.png');
+                    e.target.src = src.replace(srcOrigin, srcTarget);
                         // notify user TODO
-                    }
+                },
+                error : function( response ) {
+                    e.target.src = src;
+                        // notify user TODO
                 }
             });
         });
