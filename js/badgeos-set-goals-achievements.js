@@ -23,6 +23,7 @@ jQuery( function( $ ) {
                 dataType : 'json',
                 success : function( response ) {
                     e.target.src = src.replace(srcOrigin, srcTarget);
+                    (srcTarget == "goal-set.png") ? e.target.title = "Click to UNset Goal": e.target.title = "Click to SET Goal";
                         // notify user TODO
                 },
                 error : function( response ) {
