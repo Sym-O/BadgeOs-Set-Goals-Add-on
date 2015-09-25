@@ -10,6 +10,12 @@
 .badgeos-achievements-list-item .goal-action {
     float: left;
 }
+.entry-title .goal-action {
+    float: right;
+}
+.entry-title .goal-action img {
+    margin-right: 100px;
+}
 .goal-action img {
     cursor:pointer;
 }

@@ -2,38 +2,47 @@ jQuery( function( $ ) {
     $('#badgeos-achievements-container').mouseenter(function(){
         $( '.goal-action-img' ).unbind();
         $( '.goal-action-img' ).click(function (e) {
-            var src = e.target.src;
-            var srcOrigin;
-            var srcTarget;
-            if ( src.indexOf( "goal-to-set.png" ) != -1 ) {
-                srcOrigin = 'goal-to-set.png';
-                srcTarget = 'goal-set.png';
-            } else {
-                srcOrigin = 'goal-set.png';
-                srcTarget = 'goal-to-set.png';
-            }
-            e.target.src = src.replace(srcOrigin, 'spinner.gif');
-            $.ajax( {
-                url: badgeos_set_goals.ajax_url,
-                data: {
-                    'action'  : 'update_goals_on_action',
-                    'achievement_id': this.getAttribute( 'value' ),
-                    'user_id' : badgeos_set_goals.user_id,
-                },
-                dataType : 'json',
-                success : function( response ) {
-                    e.target.src = src.replace(srcOrigin, srcTarget);
-                    (srcTarget == "goal-set.png") ? e.target.title = "Click to UNset Goal": e.target.title = "Click to SET Goal";
-                        // notify user TODO
-                },
-                error : function( response ) {
-                    e.target.src = src;
-                        // notify user TODO
-                }
-            });
+            click_goal_action(e);
         });
     });
 
+	$( '.goal-action-img' ).click(function (e) {
+		click_goal_action(e);
+	});
+
+	//function to add/delete achievement in goal list
+	function click_goal_action(e) {
+		var src = e.target.src;
+		var srcOrigin;
+		var srcTarget;
+		if ( src.indexOf( "goal-to-set.png" ) != -1 ) {
+			srcOrigin = 'goal-to-set.png';
+			srcTarget = 'goal-set.png';
+		} else {
+			srcOrigin = 'goal-set.png';
+			srcTarget = 'goal-to-set.png';
+		}
+		e.target.src = src.replace(srcOrigin, 'spinner.gif');
+		$.ajax( {
+			url: badgeos_set_goals.ajax_url,
+			data: {
+				'action'  : 'update_goals_on_action',
+				'achievement_id': e.target.getAttribute( 'value' ),
+				'user_id' : badgeos_set_goals.user_id,
+			},
+			dataType : 'json',
+			success : function( response ) {
+				e.target.src = src.replace(srcOrigin, srcTarget);
+				(srcTarget == "goal-set.png") ? e.target.title = "Click to UNset Goal": e.target.title = "Click to SET Goal";
+					// notify user TODO
+			},
+			error : function( response ) {
+				e.target.src = src;
+					// notify user TODO
+			}
+		});
+	}	
+	
 	// Our main achievement list AJAX call
 	function badgeos_ajax_goals_list() {
 		$.ajax( {
