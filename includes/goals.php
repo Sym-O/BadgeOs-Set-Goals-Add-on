@@ -93,9 +93,9 @@ function badgeos_set_goals_build_button( $class, $in_goals = false ) {
     $button ='';
 
     if ($in_goals) {
-        $button = '<div class="'.$class.'"><img class="goal-action-img" value="'.$achievement_id.'" src="'.badgeos_set_goals_get_directory_url().'/images/goal-set.png" title="Click to UNset Goal"></img></div>';
+        $button = '<div class="'.$class.'"><img class="goal-action-img" value="'.$achievement_id.'" src="'.badgeos_set_goals_get_directory_url().'/images/goal-set.svg" title="Click to UNset Goal"></img></div>';
     } else {
-        $button = '<div class="'.$class.'"><img class="goal-action-img" value="'.$achievement_id.'" src="'.badgeos_set_goals_get_directory_url().'/images/goal-to-set.png" title="Click to SET Goal"></img></div>';
+        $button = '<div class="'.$class.'"><img class="goal-action-img transparent" value="'.$achievement_id.'" src="'.badgeos_set_goals_get_directory_url().'/images/goal-to-set.svg" title="Click to SET Goal"></img></div>';
     }
     return $button;
 }
@@ -146,38 +146,46 @@ add_action( 'badgeos_render_achievement', 'badgeos_set_goals_filter', 10, 2);
  * @param  string $content The page content
  * @return string          The page content after reformat
  */
-function badgeos_set_goals_title_filter( $content ) {
+function badgeos_set_goals_achievement_wrap_filter( $content ) {
+
+    //$main_title = single_post_title('',false);
+	//if ( $content && $main_title && strcmp($content, $main_title )!== 0 )
+	//	return $content;
+
+	$id = get_the_ID();	
+
+    if ( !badgeos_is_achievement( $id ) )
+        return $content;
+	// filter, but only on the main loop!
+	if ( !badgeos_is_main_loop( $id ) )
+		return $content;
 
 	wp_enqueue_style( 'badgeos-front' );
 	wp_enqueue_script( 'badgeos-set-goals-achievements' );
 
 	global $user_ID;
 	
-	$badge_id = get_the_ID();	
-
     $goals_array = badgeos_get_user_goals( $user_ID );
-    $in_goals = in_array( $badge_id , $goals_array );
+    $in_goals = in_array( $id , $goals_array );
 
-    $achieved = badgeos_get_user_achievements( array( 'user_id' => $user_ID, 'achievement_id' => $badge_id) );
+    $achieved = badgeos_get_user_achievements( array( 'user_id' => $user_ID, 'achievement_id' => $id) );
 
     // build button
     $button = badgeos_set_goals_build_button("goal-action", $in_goals);
 
-	// filter, but only on the main loop!
-	if ( !badgeos_is_main_loop( $badge_id ) )
-		return $content;
 
 	// now that we're where we want to be, tell the filters to stop removing
 	$GLOBALS['badgeos_reformat_content'] = true;
 
-	$newcontent = $content . $button;
+	$newcontent = $button.$content ;
+    //$newcontent = str_replace('<h1 class="entry-title">',$button.'<h1 class="entry-title">', $content);
 	
 	// Ok, we're done reformating
 	$GLOBALS['badgeos_reformat_content'] = false;
 
 	return $newcontent;
 }
-add_filter( 'the_title', 'badgeos_set_goals_title_filter', 9 );
+add_filter( 'the_content', 'badgeos_set_goals_achievement_wrap_filter', 9 );
 
 /**
 * delete given achievement id from aimed achievments list if present

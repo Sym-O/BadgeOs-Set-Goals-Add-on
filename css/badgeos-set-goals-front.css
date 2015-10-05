@@ -10,12 +10,22 @@
 .badgeos-achievements-list-item .goal-action {
     float: left;
 }
-.entry-title .goal-action {
-    float: right;
+.achievement-wrap .goal-action {
+    float: left;
 }
-.entry-title .goal-action img {
-    margin-right: 100px;
-}
-.goal-action img {
+.achievement-wrap .goal-action img {
     cursor:pointer;
+    margin-right: 10px;
+    margin-top: 20px;
+    margin-left: 10px;
+    height: 70px;
+    width: 70px;
+}
+#badgeos-achievements-container .goal-action img {
+    cursor:pointer;
+    height: 40px;
+    width: 40px;
+}
+.goal-action .transparent {
+    opacity: 0.5;
 }

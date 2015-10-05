@@ -15,12 +15,14 @@ jQuery( function( $ ) {
 		var src = e.target.src;
 		var srcOrigin;
 		var srcTarget;
-		if ( src.indexOf( "goal-to-set.png" ) != -1 ) {
-			srcOrigin = 'goal-to-set.png';
-			srcTarget = 'goal-set.png';
+		var goalToSetImg = "goal-to-set.svg";
+		var goalSetImg = "goal-set.svg";
+		if ( src.indexOf( goalToSetImg ) != -1 ) {
+			srcOrigin = goalToSetImg;
+			srcTarget = goalSetImg;
 		} else {
-			srcOrigin = 'goal-set.png';
-			srcTarget = 'goal-to-set.png';
+			srcOrigin = goalSetImg;
+			srcTarget = goalToSetImg;
 		}
 		e.target.src = src.replace(srcOrigin, 'spinner.gif');
 		$.ajax( {
@@ -33,7 +35,13 @@ jQuery( function( $ ) {
 			dataType : 'json',
 			success : function( response ) {
 				e.target.src = src.replace(srcOrigin, srcTarget);
-				(srcTarget == "goal-set.png") ? e.target.title = "Click to UNset Goal": e.target.title = "Click to SET Goal";
+				if (srcTarget == goalSetImg) {
+                    e.target.title = "Click to UNset Goal";
+                    e.target.className = "goal-action-img";
+                } else {
+                    e.target.title = "Click to SET Goal";
+                    e.target.className = "goal-action-img transparent";
+                }
 					// notify user TODO
 			},
 			error : function( response ) {
