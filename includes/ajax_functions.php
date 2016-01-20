@@ -32,24 +32,18 @@ function badgeos_ajax_update_goals_on_action() {
     if ( $user_id != -1 )
         $user_id = $user_ID;
 
-    $achievements = badgeos_get_user_achievements( array( 'user_id' => $user_id, 'achievement_id' => $achievement_id ) );
-    
-    
-    if (! $achievements ) {
-        // achievement is not in user achievements, we flip the goal status
-        if (count(badgeos_get_user_goals( $user_id, $achievement_id ))==0) {
-            // Not in goals, we add the new goal
-            badgeos_set_new_goal( $user_id, $achievement_id );
-            wp_send_json_success( array(
-		        'message'     => 'Add goal: achievement_id:'.$achievement_id. ' user_id:'.$user_id,
-        	) );
-        }
-        else {
-            // In goals, we remove the goal
-            badgeos_remove_goal( $user_id, $achievement_id );
-            wp_send_json_success( array(
-		        'message'     => 'Remove goal: achievement_id:'.$achievement_id. ' user_id:'.$user_id. ' count:'.count(badgeos_get_user_goals( $user_id, $achievement_id )),
-        	) );
-        }
+    if (count(badgeos_get_user_goals( $user_id, $achievement_id ))==0) {
+        // Not in goals, we add the new goal
+        badgeos_set_new_goal( $user_id, $achievement_id );
+        wp_send_json_success( array(
+	        'message'     => 'Add goal: achievement_id:'.$achievement_id. ' user_id:'.$user_id,
+    	) );
+    }
+    else {
+        // In goals, we remove the goal
+        badgeos_remove_goal( $user_id, $achievement_id );
+        wp_send_json_success( array(
+	        'message'     => 'Remove goal: achievement_id:'.$achievement_id. ' user_id:'.$user_id. ' count:'.count(badgeos_get_user_goals( $user_id, $achievement_id )),
+    	) );
     }
 }

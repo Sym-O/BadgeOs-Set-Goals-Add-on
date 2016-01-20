@@ -142,7 +142,7 @@ function badgeos_goals_list_shortcode( $atts = array () ){
     // Note : goals shortcode will display up to 30 goals, no more (js file is implemented according to this)
 	extract( shortcode_atts( array(
 		'type'        => 'all',
-		'limit'       => '30',
+		'limit'       => count(badgeos_get_achievements(array('posts_per_page' => -1))),
 		'show_filter' => true,
 		'show_search' => true,
 		'group_id'    => '0',

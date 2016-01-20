@@ -43,17 +43,15 @@ function badgeos_get_user_goals ( $user_id, $achievement_id = 0 ) {
 * 
 */
 function badgeos_set_new_goal ( $user_id, $achievement_id ){
-    if ( !badgeos_get_user_achievements( array( 'user_id' => $user_id, 'achievement_id' => $achievement_id ))){
-        $goals_array = badgeos_get_user_goals( $user_id );
-        if ( ! in_array($achievement_id, $goals_array) ) {
-            array_push( $goals_array, $achievement_id );
-            $goals = join( " ", $goals_array );
-            // Update user meta
-            if ( $achievement_id == -1 and ! current_user_can( 'edit_user', $user_id ))
-                wp_send_json_error('something unexpected happened');
-            else {
-                update_usermeta( $user_id, '_badgeos_goals', $goals );
-            }
+    $goals_array = badgeos_get_user_goals( $user_id );
+    if ( ! in_array($achievement_id, $goals_array) ) {
+        array_push( $goals_array, $achievement_id );
+        $goals = join( " ", $goals_array );
+        // Update user meta
+        if ( $achievement_id == -1 and ! current_user_can( 'edit_user', $user_id ))
+            wp_send_json_error('something unexpected happened');
+        else {
+            update_usermeta( $user_id, '_badgeos_goals', $goals );
         }
     }
 }
@@ -119,8 +117,6 @@ function badgeos_set_goals_filter($achievement_html, $achievement_id, $goals_arr
         return "";
     }
     else {
-        $achieved = badgeos_get_user_achievements( array( 'user_id' => $user_ID, 'achievement_id' => $achievement_id) );
-
         // build button
         $button = badgeos_set_goals_build_button("goal-action", $in_goals);
         
@@ -167,8 +163,6 @@ function badgeos_set_goals_achievement_wrap_filter( $content ) {
 	
     $goals_array = badgeos_get_user_goals( $user_ID );
     $in_goals = in_array( $id , $goals_array );
-
-    $achieved = badgeos_get_user_achievements( array( 'user_id' => $user_ID, 'achievement_id' => $id) );
 
     // build button
     $button = badgeos_set_goals_build_button("goal-action", $in_goals);
