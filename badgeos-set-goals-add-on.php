@@ -37,6 +37,13 @@ class BadgeOS_Set_Goals {
 		// Load translations : no need for now
 		// load_plugin_textdomain( 'badgeos-set-goals', false, dirname( $this->basename ) . '/languages' );
 
+		/* add monthly to the allowed frequencies of the wp_schedule_event function */ 
+		function monthly_cron_definer( $schedules ) {
+			$schedules['monthly'] = array( 'interval'=>2592000, 'display'=>__('Once Every 30 Days') );
+			return $schedules;
+		}
+		add_filter('cron_schedules', 'monthly_cron_definer');
+
 		// Run our activation and deactivation hooks
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
 		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
@@ -49,6 +56,7 @@ class BadgeOS_Set_Goals {
 		add_action( 'init', array( $this, 'register_scripts_and_styles' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'badgeos_set_goals_addon_script'));
 
+		add_action( 'badgeos_set_goals_task_hook', 'badgeos_set_goals_send_notifications');
 	} /* __construct() */
 
 
@@ -108,6 +116,7 @@ class BadgeOS_Set_Goals {
 		// If BadgeOS is available, run our activation functions
 		if ( $this->meets_requirements() ) {
 			// Do some activation things
+			wp_schedule_event(time(), 'monthly', 'badgeos_set_goals_task_hook');
 		}
 
 	} /* activate() */
@@ -123,6 +132,7 @@ class BadgeOS_Set_Goals {
 	public function deactivate() {
 
 		// Do some deactivation things.
+		wp_clear_scheduled_hook('badgeos_set_goals_task_hook');
 
 	} /* deactivate() */
 
