@@ -9,7 +9,7 @@
 * @link https://d2-si.fr
  */
 
-define('BADGEOS_SET_GOALS_NOTIFY', true);
+define('BADGEOS_SET_GOALS_NOTIFY', false);
 
 /**
 * Return an array of the goals that match the arguments
