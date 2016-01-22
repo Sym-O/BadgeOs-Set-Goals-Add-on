@@ -31,10 +31,17 @@ function badgeos_set_goals_build_email( $user_id ) {
 	    $email['message'] .= "<p>À bientôt sur Adopteunbadge</p>";
     } else {
         $email['message'] .= "<p>Bonjour ".$user_info->first_name." !</p>
-            <p>Voici un rappel de tes objectifs de progression sur Adopteunbadge. Où en es-tu ? Est-ce que tu as des difficultés à passer certaines étapes ? C'est le bon moment pour faire un bilan et contacter ton RH si tu souhaites en discuter !</p>";
+            <p>Voici un rappel de tes objectifs de progression sur Adopteunbadge. Où en es-tu ? Est-ce que tu as des difficultés à passer certaines étapes ? C'est le bon moment pour faire un bilan et contacter ton RH si tu souhaites en discuter !</p>\r\n";
+        $email['message'] .= "<center><p>";
+        $goals_count = 0;
 	    foreach ( $goals_array as $goal ) {
 	    	$email['message'] .= "&nbsp;&nbsp;&nbsp;<a href='".get_permalink($goal)."'>" . badgeos_get_achievement_post_thumbnail($goal)."</a>";
+            $goals_count ++;
+            if ($goals_count%5 == 0) {
+                $email['message'] .= "</p><p>\r\n";
+            }
 	    }
+        $email['message'] .= "</p></center>";
 	    $email['message'] .= "<p>Pour gérer tes objectifs ou être accompagné(e) dans leur obtention, connecte-toi sur <a href='http://adopteunbadge.d2-si.fr'>adopteunbadge.d2-si.eu</a> !</p>";
 	    $email['message'] .= "<p>À bientôt sur Adopteunbadge</p>";
     }
@@ -53,7 +60,7 @@ function badgeos_set_goals_send_notifications() {
 		$recipient = esc_html( $user->user_email );
         if ( BADGEOS_SET_GOALS_NOTIFY ) {
             $email = badgeos_set_goals_build_email ($user->id);
-            wp_mail( $recipient, $email['object'], $email['message'] );
+            wp_mail( $recipient, $email['object'], wordwrap($email['message']) );
         } 
     }
     remove_filter( 'wp_mail_content_type', 'set_html_content_type' );
