@@ -59,12 +59,62 @@ function badgeos_set_goals_send_notifications() {
 	foreach ( $users as $user ) {
 		$recipient = esc_html( $user->user_email );
         if ( BADGEOS_SET_GOALS_NOTIFY ) {
+                        if (
+                $user->id == 6  ||
+            //    $user->id == 12 ||
+            ) {
             $email = badgeos_set_goals_build_email ($user->id);
             wp_mail( $recipient, $email['object'], wordwrap($email['message']) );
+            }
         } 
     }
     remove_filter( 'wp_mail_content_type', 'set_html_content_type' );
 }
+
+/**
+* Update user meta goals field based on an array
+*
+* 
+*/
+function badgeos_update_user_goals_meta ( $user_id, $goals_array ) {
+    if ( count($goals_array) == 0 )
+        $goals =  "";
+    else
+        $goals = join( " ", $goals_array );
+    //Update user meta
+    if ( $achievement_id == -1 and ! current_user_can( 'edit_user', $user_id ))
+        wp_send_json_error('something unexpected happened');
+    else 
+        update_usermeta( $user_id, '_badgeos_goals', $goals );
+}
+
+/**
+ * Check if there is only correct value in the user goals list
+ * Correct things if needed and return the clean array
+ */
+function badgeos_check_user_goals ( $user_id, $goals_array = 0 ) {
+    if (!$goals_array) {
+        $goals = get_user_meta( $user_id, '_badgeos_goals', true );
+        if($goals == "") {
+            return array();
+        } else {
+            $goals_array = array_map('intval', explode(" ", $goals ) );
+        }
+    }
+
+    $is_corrected = 0;
+    for ( $i=0 ; $i <=count($goals_array)-1 ; $i++ ) {
+        if ( get_post_status($goals_array[$i]) != 'publish' || ! badgeos_is_achievement($goals_array[$i]) ) {
+            unset($goals_array[$i]);
+            $is_corrected = 1;
+        }
+    }
+    if ($is_corrected) {
+        badgeos_update_user_goals_meta($user_id, $goals_array);
+    }
+    return $goals_array;
+}
+
 
 /**
 * Return an array of the goals that match the arguments
@@ -89,7 +139,7 @@ function badgeos_get_user_goals ( $user_id, $achievement_id = 0 ) {
             }
         }
         else {
-            return $goals_array;
+            return badgeos_check_user_goals($user_id, $goals_array);
         }
     }
 }
@@ -103,13 +153,7 @@ function badgeos_set_new_goal ( $user_id, $achievement_id ){
     $goals_array = badgeos_get_user_goals( $user_id );
     if ( ! in_array($achievement_id, $goals_array) ) {
         array_push( $goals_array, $achievement_id );
-        $goals = join( " ", $goals_array );
-        // Update user meta
-        if ( $achievement_id == -1 and ! current_user_can( 'edit_user', $user_id ))
-            wp_send_json_error('something unexpected happened');
-        else {
-            update_usermeta( $user_id, '_badgeos_goals', $goals );
-        }
+        badgeos_update_user_goals_meta($user_id, $goals_array);
     }
 }
 
@@ -123,16 +167,7 @@ function badgeos_remove_goal ( $user_id, $achievement_id ){
     if (count($goals_array)>0 && in_array($achievement_id, $goals_array)){ 
         $key = array_search( $achievement_id, $goals_array );
         unset($goals_array[$key]);
-        if ( count($goals_array) == 0 )
-            $goals =  "";
-        else
-            $goals = join( " ", $goals_array );
-        //Update user meta
-        if ( $achievement_id == -1 and ! current_user_can( 'edit_user', $user_id ))
-            wp_send_json_error('something unexpected happened');
-        else 
-            update_usermeta( $user_id, '_badgeos_goals', $goals );
-        
+        badgeos_update_user_goals_meta($user_id, $goals_array);
     }
 }
 

@@ -89,14 +89,8 @@ jQuery( function( $ ) {
 							$( '#badgeos_achievements_offset' ).val( response.data.offset );
 							$( '#badgeos_achievements_count' ).val( response.data.badge_count );
 							//credlyize();
-							//hide/show load more button
-							if ( $( '.badgeos-achievements-grid-item' ).length < 30 ) {
-								$( '#goals_list_load_more' ).hide();
-							}
-							else {
-								$( '#badgeos-achievements-container' ).height( Math.ceil(($( '.badgeos-achievements-grid-item' ).length / 5))*200);
-                                $( '#goals_list_load_more' ).show();
-							}
+							// No need of load more button for goals
+							$( '#goals_list_load_more' ).hide();
 						}
 					}
 				} );
