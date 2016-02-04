@@ -37,13 +37,6 @@ class BadgeOS_Set_Goals {
 		// Load translations : no need for now
 		// load_plugin_textdomain( 'badgeos-set-goals', false, dirname( $this->basename ) . '/languages' );
 
-		/* add monthly to the allowed frequencies of the wp_schedule_event function */ 
-		function monthly_cron_definer( $schedules ) {
-			$schedules['monthly'] = array( 'interval'=>2592000, 'display'=>__('Once Every 30 Days') );
-			return $schedules;
-		}
-		add_filter('cron_schedules', 'monthly_cron_definer');
-
 		// Run our activation and deactivation hooks
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
 		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
@@ -55,7 +48,7 @@ class BadgeOS_Set_Goals {
 		add_action( 'plugins_loaded', array( $this, 'includes' ) );
 		add_action( 'init', array( $this, 'register_scripts_and_styles' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'badgeos_set_goals_addon_script'));
-
+		add_action( 'badgeos_settings', array( $this, 'badgeos_set_goals_settings' ) );
 		add_action( 'badgeos_set_goals_task_hook', 'badgeos_set_goals_send_notifications');
 	} /* __construct() */
 
@@ -107,6 +100,56 @@ class BadgeOS_Set_Goals {
     }
 
 	/**
+	 * Adds additional options to the BadgeOS Settings page
+	 *
+	 * @since 1.0.0
+	 */
+	public function badgeos_set_goals_settings( $settings ) {
+		$goals_notification_custom_message  = $settings['goals_notification_custom_message'];
+		$goals_emailing_no_goal             = $settings['goals_emailing_no_goal'];
+		$goals_emailing_goals               = $settings['goals_emailing_goals'];
+	?>
+		<tr><td colspan="2"><hr/><h2><?php _e( 'Badgeos Goals Settings', 'badgeos' ); ?></h2></td></tr>
+		<tr valign="top">
+			<th scope="row">
+				<label for="goals_emailing_goals"><?php _e( 'Emailing content for users with goals set: ', 'badgeos' ); ?></label>
+			</th>
+			<td>
+				<textarea id="goals_emailing_goals" name="badgeos_settings[goals_emailing_goals]" cols="80" rows="10"><?php echo esc_textarea( $goals_emailing_goals ); ?></textarea>
+			</td>
+        </tr>
+		<tr valign="top">
+			<th scope="row">
+				<label for="goals_emailing_no_goal"><?php _e( 'Emailing content for users without goal set: ', 'badgeos' ); ?></label>
+			</th>
+			<td>
+				<textarea id="goals_emailing_no_goal" name="badgeos_settings[goals_emailing_no_goal]" cols="80" rows="10"><?php echo esc_textarea( $goals_emailing_no_goal ); ?></textarea>
+			</td>
+        </tr>
+		<tr valign="top">
+			<th scope="row">
+				<label for="goals_notification_custom_message"><?php _e( 'Goals notification custom message: ', 'badgeos' ); ?></label>
+			</th>
+			<td>
+				<textarea id="goals_notification_custom_message" name="badgeos_settings[goals_notification_custom_message]" cols="80" rows="10"><?php echo esc_textarea( $goals_notification_custom_message ); ?></textarea>
+			</td>
+        </tr>
+		<tr valign="top">
+			<th scope="row">
+				<label for="Launch_set_goals_emailing"><?php _e( 'Launch the goals emailing: ', 'badgeos' ); ?></label>
+			</th>
+			<td>
+                <input 	type="submit" class="button" 
+				onclick="location.href='#<?php badgeos_set_goals_send_notifications(); ?>';" 
+				value="<?php _e( 'Send now !', 'badgeos' ); ?>" />
+
+			</td>
+        </tr>
+	<?php
+	}
+
+
+	/**
 	 * Activation hook for the plugin.
 	 *
 	 * @since 1.0.0
@@ -116,7 +159,6 @@ class BadgeOS_Set_Goals {
 		// If BadgeOS is available, run our activation functions
 		if ( $this->meets_requirements() ) {
 			// Do some activation things
-			wp_schedule_event(time(), 'monthly', 'badgeos_set_goals_task_hook');
 		}
 
 	} /* activate() */
@@ -132,8 +174,6 @@ class BadgeOS_Set_Goals {
 	public function deactivate() {
 
 		// Do some deactivation things.
-		wp_clear_scheduled_hook('badgeos_set_goals_task_hook');
-
 	} /* deactivate() */
 
 	/**

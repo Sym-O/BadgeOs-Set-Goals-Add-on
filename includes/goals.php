@@ -9,42 +9,38 @@
 * @link https://d2-si.fr
  */
 
-define('BADGEOS_SET_GOALS_NOTIFY', false);
-
 /**
 * Return an array of the goals that match the arguments
 *
-* TODO: Enable setting of the message sent in the parameter section of the plugin, not in the source code just below 
-* TODO: Add multi language support
 */
 function badgeos_set_goals_build_email( $user_id ) {
     $email = array(
         'object' => '[Adopteunbadge] Petite mise au point sur tes objectifs de progression !',
+        'message' => ''
     );
     $user_info      = get_userdata($user_id);
     $goals_array    = badgeos_get_user_goals( $user_id );
+    $badgeos_settings = get_option( 'badgeos_settings' );
 	
     if ( count( $goals_array ) == 0 ) {
-        $email['message'] .= "<p>Bonjour ".$user_info->first_name." !</p>
-            <p>Il semblerait que tu n'aies aucun objectif de progression fixé sur Adopteunbadge. Cette application est là pour t'aider dans l'acquisition de nouvelles compétences essentielles pour ton profil. Elle sert de support dans ta relation avec ton RH et, si tu en as un, ton parrain technique.</p>
-            <p>Pour bénéficier de cet outil, connecte-toi sur <a href='http://adopteunbadge.d2-si.fr'>adopteunbadge.d2-si.eu</a> et commence par te fixer tes propres objectifs de progression !</p>";
-	    $email['message'] .= "<p>À bientôt sur Adopteunbadge</p>";
+        $message            = $badgeos_settings['goals_emailing_no_goal'];
     } else {
-        $email['message'] .= "<p>Bonjour ".$user_info->first_name." !</p>
-            <p>Voici un rappel de tes objectifs de progression sur Adopteunbadge. Où en es-tu ? Est-ce que tu as des difficultés à passer certaines étapes ? C'est le bon moment pour faire un bilan et contacter ton RH si tu souhaites en discuter !</p>\r\n";
-        $email['message'] .= "<center><p>";
+        $message            = $badgeos_settings['goals_emailing_goals'];
+        $goals_html = "<center><p>";
         $goals_count = 0;
 	    foreach ( $goals_array as $goal ) {
-	    	$email['message'] .= "&nbsp;&nbsp;&nbsp;<a href='".get_permalink($goal)."'>" . badgeos_get_achievement_post_thumbnail($goal)."</a>";
+	    	$goals_html .= "&nbsp;&nbsp;&nbsp;<a href='".get_permalink($goal)."'>" . badgeos_get_achievement_post_thumbnail($goal)."</a>";
             $goals_count ++;
             if ($goals_count%5 == 0) {
-                $email['message'] .= "</p><p>\r\n";
+                $goals_html .= "</p><p>\r\n";
             }
 	    }
-        $email['message'] .= "</p></center>";
-	    $email['message'] .= "<p>Pour gérer tes objectifs ou être accompagné(e) dans leur obtention, connecte-toi sur <a href='http://adopteunbadge.d2-si.fr'>adopteunbadge.d2-si.eu</a> !</p>";
-	    $email['message'] .= "<p>À bientôt sur Adopteunbadge</p>";
+        $goals_html .= "</p></center>";
+        $message = str_replace("[goals]",$goals_html, $message);
     }
+    $message            = str_replace("[name]",$user_info->first_name, $message);
+    $message            = str_replace("[custom-message]",$badgeos_settings['goals_notification_custom_message'], $message);
+    $email['message']   = $message;
 
     return $email;
 }
@@ -58,15 +54,8 @@ function badgeos_set_goals_send_notifications() {
     add_filter('wp_mail_content_type','set_html_content_type');
 	foreach ( $users as $user ) {
 		$recipient = esc_html( $user->user_email );
-        if ( BADGEOS_SET_GOALS_NOTIFY ) {
-                        if (
-                $user->id == 6  ||
-            //    $user->id == 12 ||
-            ) {
-            $email = badgeos_set_goals_build_email ($user->id);
-            wp_mail( $recipient, $email['object'], wordwrap($email['message']) );
-            }
-        } 
+        $email = badgeos_set_goals_build_email ($user->id);
+        wp_mail( $recipient, $email['object'], wordwrap($email['message']) );
     }
     remove_filter( 'wp_mail_content_type', 'set_html_content_type' );
 }

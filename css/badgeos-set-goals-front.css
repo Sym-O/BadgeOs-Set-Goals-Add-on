@@ -21,7 +21,7 @@
     height: 70px;
     width: 70px;
 }
-#badgeos-achievements-container .goal-action img {
+#badgeos-achievements-container .goal-action img, #badgeos-single-achievement-container .goal-action img {
     cursor:pointer;
     height: 40px;
     width: 40px;
