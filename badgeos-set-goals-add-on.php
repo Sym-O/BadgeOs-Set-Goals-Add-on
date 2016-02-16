@@ -49,7 +49,6 @@ class BadgeOS_Set_Goals {
 		add_action( 'init', array( $this, 'register_scripts_and_styles' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'badgeos_set_goals_addon_script'));
 		add_action( 'badgeos_settings', array( $this, 'badgeos_set_goals_settings' ) );
-		add_action( 'badgeos_set_goals_task_hook', 'badgeos_set_goals_send_notifications');
 	} /* __construct() */
 
 
@@ -77,6 +76,7 @@ class BadgeOS_Set_Goals {
 	function register_scripts_and_styles() {
 		// Register scripts
         wp_register_script( 'badgeos-set-goals-achievements', $this->directory_url . '/js/badgeos-set-goals-achievements.js', array( 'jquery' ), '1.1.0', true );
+        wp_register_script( 'badgeos-set-goals-admin', $this->directory_url . '/js/badgeos-set-goals-admin.js', array( 'jquery' ), '1.1.0', true );
 		wp_register_style( 'badgeos-set-goals-front', $this->directory_url . '/css/badgeos-set-goals-front.css', null, '1.0.1' );
     }
 
@@ -108,6 +108,14 @@ class BadgeOS_Set_Goals {
 		$goals_notification_custom_message  = $settings['goals_notification_custom_message'];
 		$goals_emailing_no_goal             = $settings['goals_emailing_no_goal'];
 		$goals_emailing_goals               = $settings['goals_emailing_goals'];
+
+        // Prepare for ajax call for sending emailing
+        wp_enqueue_script( 'badgeos-set-goals-admin' );
+	    $data = array(
+	    	'ajax_url'    => esc_url( admin_url( 'admin-ajax.php', 'relative' ) ),
+	    );
+	    wp_localize_script( 'badgeos-set-goals-admin', 'badgeos_set_goals', $data );
+
 	?>
 		<tr><td colspan="2"><hr/><h2><?php _e( 'Badgeos Goals Settings', 'badgeos' ); ?></h2></td></tr>
 		<tr valign="top">
@@ -139,8 +147,7 @@ class BadgeOS_Set_Goals {
 				<label for="Launch_set_goals_emailing"><?php _e( 'Launch the goals emailing: ', 'badgeos' ); ?></label>
 			</th>
 			<td>
-                <input 	type="submit" class="button" 
-				onclick="location.href='#<?php badgeos_set_goals_send_notifications(); ?>';" 
+                <input 	id="badgeos-set-goals-send-emailing" class="button" 
 				value="<?php _e( 'Send now !', 'badgeos' ); ?>" />
 
 			</td>

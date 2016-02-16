@@ -46,8 +46,8 @@ function badgeos_set_goals_build_email( $user_id ) {
 }
 
 /**
-* This is the function that is executed by the monthly recurring
-* action badgeos_set_goals_task_hook defined in bageos-set-goals-add-on.php
+* Send notification on goals to all users 
+* TODO : handle error case in emailing to let ajax call alert admin user
 **/
 function badgeos_set_goals_send_notifications() {
 	$users = get_users();

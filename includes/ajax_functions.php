@@ -11,6 +11,7 @@
 
 $badgeos_ajax_actions = array(
     'update_goals_on_action',
+    'send_emailing',
 );
 // Register core Ajax calls.
 foreach ( $badgeos_ajax_actions as $action ) {
@@ -46,4 +47,13 @@ function badgeos_ajax_update_goals_on_action() {
 	        'message'     => 'Remove goal: achievement_id:'.$achievement_id. ' user_id:'.$user_id. ' count:'.count(badgeos_get_user_goals( $user_id, $achievement_id )),
     	) );
     }
+}
+
+/**
+ * AJAX Helper for sending emailing on goals to all user
+ *
+ * @return void
+ */
+function badgeos_ajax_send_emailing() {
+    badgeos_set_goals_send_notifications();
 }
