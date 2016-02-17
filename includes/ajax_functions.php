@@ -42,7 +42,7 @@ function badgeos_ajax_update_goals_on_action() {
     }
     else {
         // In goals, we remove the goal
-        badgeos_remove_goal( $user_id, $achievement_id );
+        badgeos_remove_goal( $user_id, $achievement_id, "remove goal on" );
         wp_send_json_success( array(
 	        'message'     => 'Remove goal: achievement_id:'.$achievement_id. ' user_id:'.$user_id. ' count:'.count(badgeos_get_user_goals( $user_id, $achievement_id )),
     	) );

@@ -47,6 +47,7 @@ function badgeos_set_goals_build_email( $user_id ) {
 
 /**
 * Send notification on goals to all users 
+* TODO : remove user filtering
 * TODO : handle error case in emailing to let ajax call alert admin user
 **/
 function badgeos_set_goals_send_notifications() {
@@ -54,8 +55,8 @@ function badgeos_set_goals_send_notifications() {
     add_filter('wp_mail_content_type','set_html_content_type');
 	foreach ( $users as $user ) {
 		$recipient = esc_html( $user->user_email );
-        $email = badgeos_set_goals_build_email ($user->id);
-        wp_mail( $recipient, $email['object'], wordwrap($email['message']) );
+            $email = badgeos_set_goals_build_email ($user->id);
+            wp_mail( $recipient, $email['object'], wordwrap($email['message']) );
     }
     remove_filter( 'wp_mail_content_type', 'set_html_content_type' );
 }
@@ -143,6 +144,13 @@ function badgeos_set_new_goal ( $user_id, $achievement_id ){
     if ( ! in_array($achievement_id, $goals_array) ) {
         array_push( $goals_array, $achievement_id );
         badgeos_update_user_goals_meta($user_id, $goals_array);
+        // Log the action
+        $user = get_userdata( $user_id );
+        $title = sprintf( __( '%1$s set goal on %2$s', 'badgeos' ),
+            $user->user_login,
+            get_the_title( $achievement_id )
+        );
+        badgeos_post_log_entry( $achievement_id, $user_id, null, $title );
     }
 }
 
@@ -151,12 +159,22 @@ function badgeos_set_new_goal ( $user_id, $achievement_id ){
 *
 * 
 */
-function badgeos_remove_goal ( $user_id, $achievement_id ){
+function badgeos_remove_goal ( $user_id, $achievement_id, $log_message = null ){
     $goals_array = badgeos_get_user_goals( $user_id );
     if (count($goals_array)>0 && in_array($achievement_id, $goals_array)){ 
         $key = array_search( $achievement_id, $goals_array );
         unset($goals_array[$key]);
         badgeos_update_user_goals_meta($user_id, $goals_array);
+        if ($log_message) {
+            // if log message is set we log the action
+            $user = get_userdata( $user_id );
+            $title = sprintf( __( '%1$s %2$s %3$s', 'badgeos' ),
+                $user->user_login,
+                $log_message,
+                get_the_title( $achievement_id )
+            );
+            badgeos_post_log_entry( $achievement_id, $user_id, null, $title );
+        }
     }
 }
 
@@ -268,10 +286,9 @@ add_filter( 'the_content', 'badgeos_set_goals_achievement_wrap_filter', 9 );
 * 
 */
 function badgeos_set_goals_update_goals_on_award( $user_id, $achievement_id ) {
-    // For now, no need to remove them
-    //bageos_remove_goal( $user_id, $achievement_id );
+    bageos_remove_goal( $user_id, $achievement_id, "achieve goal" );
 }
-//add_action( 'badgeos_award_achievement', 'badgeos_set_goals_update_goals_on_award', 10, 2);
+add_action( 'badgeos_award_achievement', 'badgeos_set_goals_update_goals_on_award', 10, 2);
 
 ///*
 // *  ADMIN functions
