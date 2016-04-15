@@ -286,9 +286,103 @@ add_filter( 'the_content', 'badgeos_set_goals_achievement_wrap_filter', 9 );
 * 
 */
 function badgeos_set_goals_update_goals_on_award( $user_id, $achievement_id ) {
-    bageos_remove_goal( $user_id, $achievement_id, "achieve goal" );
+    badgeos_remove_goal( $user_id, $achievement_id, "achieve goal" );
 }
 add_action( 'badgeos_award_achievement', 'badgeos_set_goals_update_goals_on_award', 10, 2);
+
+//////  ADMIN FUNCTIONS ///
+/**
+*
+* 
+*/
+function badgeos_set_goals_get_user_data( $args = null ) {
+
+	global $wpdb;
+
+	$defaults = array(
+		'user_id'          => 0,     // The given user's ID
+		'site_id'          => get_current_blog_id(), // The given site's ID
+		'achievement_id'   => false, // A specific achievement's post ID
+		'achievement_type' => false, // A specific achievement type
+		'since'            => 0,     // A specific timestamp to use in place of $limit_in_days
+	);
+	$args = wp_parse_args( $args, $defaults );
+
+	// get all goals set by the user
+	$goals_user = ( $goals_set = get_user_meta( absint( $args['user_id'] ), '_badgeos_goals', true ) ) ? (array) $goals_set : array();
+	$goals_id = explode( " ", $goals_user[0] );
+	$goals = array();
+
+	// prepare informations for the admin's user page information
+	if ( !empty( $goals_id ) ) {
+
+		foreach ( $goals_id as $goal_id ) {
+			$post = get_post( $goal_id );
+			$goals[] = array(
+								"post_info" => $post,
+							    "goal_date" => $wpdb->get_var( $wpdb->prepare( 
+																					"
+																						SELECT MAX(post_date) 
+																						FROM wp_posts
+																						INNER JOIN wp_postmeta ON wp_posts.ID = wp_postmeta.post_id 
+																						WHERE wp_postmeta.meta_value = %d
+																						AND wp_posts.post_author = %d
+																					", 
+																					$post->ID,
+																					$args['user_id']
+																				)
+							    								)
+							    );
+		}
+
+	}
+
+    return $goals;
+
+}
+
+
+/**
+*
+* 
+*/
+function badgeos_set_goals_user_profile_data( $user = null ) {
+
+		$goals = array();
+        $goals = badgeos_set_goals_get_user_data( array( 'user_id' => absint( $user->ID ) ) );
+
+        // List all of a user's setted goals
+        if ( !empty( $goals ) ) {
+
+        	echo '<h2>' . __( 'List of Goals set', 'badgeos' ) . '</h2>';
+
+	        echo '<table class="form-table">';
+	        echo '<tr><td colspan="2">';
+
+            echo '<table class="widefat badgeos-table">';
+            echo '<thead><tr>';
+                echo '<th>'. __( 'Image', 'badgeos' ) .'</th>';
+                echo '<th>'. __( 'Name', 'badgeos' ) .'</th>';
+                echo '<th>'. __( 'Date', 'badgeos' ) .'</th>';
+            echo '</tr></thead>';
+
+            foreach ( $goals as $goal ) {
+
+                echo '<tr>';
+                    echo '<td>'. badgeos_get_achievement_post_thumbnail( $goal[post_info]->ID, array( 50, 50 ) ) .'</td>';
+                    echo '<td>'. $goal[post_info]->post_title .' </td>';
+                    echo '<td>'. $goal[goal_date] .' </td>';
+                echo '</tr>';
+
+            }
+
+            echo '</table>';
+            echo '</td></tr>';
+    	    echo '</table>';
+        }
+        
+}
+add_action( 'show_user_profile', 'badgeos_set_goals_user_profile_data' );
 
 ///*
 // *  ADMIN functions
