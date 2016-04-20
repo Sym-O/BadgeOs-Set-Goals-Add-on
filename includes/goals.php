@@ -308,17 +308,17 @@ function badgeos_set_goals_get_user_data( $args = null ) {
 	);
 	$args = wp_parse_args( $args, $defaults );
 
-	// get all goals set by the user
-	$goals_user = ( $goals_set = get_user_meta( absint( $args['user_id'] ), '_badgeos_goals', true ) ) ? (array) $goals_set : array();
-	$goals_id = explode( " ", $goals_user[0] );
-	$goals = array();
+    // get all goals set by the user
+    $goals_user = ( $goals_set = get_user_meta( absint( $args['user_id'] ), '_badgeos_goals', true ) ) ? (array) $goals_set : array();
+    $goals = array();
 
-	// prepare informations for the admin's user page information
-	if ( !empty( $goals_id ) ) {
+    // prepare informations for the admin's user page information
+    if ( !empty( $goals_user ) ) {
+        $goals_id = explode( " ", $goals_user[0] );
 
-		foreach ( $goals_id as $goal_id ) {
-			$post = get_post( $goal_id );
-			$goals[] = array(
+        foreach ( $goals_id as $goal_id ) {
+            $post = get_post( $goal_id );
+            $goals[] = array(
 								"post_info" => $post,
 							    "goal_date" => $wpdb->get_var( $wpdb->prepare( 
 																					"
