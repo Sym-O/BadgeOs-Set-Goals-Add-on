@@ -149,7 +149,14 @@ class BadgeOS_Set_Goals {
 			<td>
                 <input 	id="badgeos-set-goals-send-emailing" class="button" 
 				value="<?php _e( 'Send now !', 'badgeos' ); ?>" />
-
+                <div id="goals_notify_output" style="display:none;"></div>
+                        <input class="button" style="display:none;" id="goals_notify_cancel" value="cancel"/>
+                        <br/><br/>
+                        <textarea style="display:none;" id="goals_list_users_to_notify" cols="80" rows="10" ></textarea>
+                        <input class="button" style="display:none;" id="goals_notify_specified_users" name="" value="send to users above"/>
+                        <br/><br/>
+                        <input class="button" style="display:none;" id="goals_notify_all" value="&#9888; send to all &#9888;"/>
+                        <img style="display:none;" id='goals_notify_loading_image' src="<?php echo plugin_dir_url( __FILE__ ).'images/spinner.gif'?>" height="30" width="30">
 			</td>
         </tr>
 	<?php

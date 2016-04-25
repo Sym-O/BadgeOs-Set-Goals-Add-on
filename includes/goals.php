@@ -46,19 +46,69 @@ function badgeos_set_goals_build_email( $user_id ) {
 }
 
 /**
-* Send notification on goals to all users 
-* TODO : remove user filtering
-* TODO : handle error case in emailing to let ajax call alert admin user
+* Send notification on goals to users 
+* @param  array $emails the list of emails to notify, if null we notify all the users
+* @param  integer $current_index the index in $emails or in the array of users, from which we will send emails
+* @param  integer $frequency the number of emails to send 
 **/
-function badgeos_set_goals_send_notifications() {
-	$users = get_users();
-    add_filter('wp_mail_content_type','set_html_content_type');
-	foreach ( $users as $user ) {
-		$recipient = esc_html( $user->user_email );
-            $email = badgeos_set_goals_build_email ($user->id);
-            wp_mail( $recipient, $email['object'], wordwrap($email['message']) );
+function badgeos_set_goals_send_notifications($emails, $current_index, $frequency) {
+    $users = get_users();
+    add_filter('wp_mail_content_type', 'set_html_content_type');
+
+    $i = $current_index;
+    $next_index = $current_index + $frequency;
+    $error_occured = false;
+    $sent_emails = '';
+    $not_sent_email = '';
+    $size;
+
+    if (is_null($emails)) {//send notification to all users in the database
+        $size = count($users);
+        for (; $i < $size && $i < $next_index; $i++) {
+            $user = $users[$i];
+            $recipient = esc_html($user->user_email);
+            $email = badgeos_set_goals_build_email($user->id);
+            if (wp_mail($recipient, $email['object'], wordwrap($email['message']))) {
+                $sent_emails .= '<br/>' . $user->user_email;
+            } else {
+                $error_occured = true;
+                $not_sent_email .= '<br/>' . $user->user_email . ' (probably server error)';
+            }
+        }
+    } else { //send notification to emails in param
+        $size = count($emails);
+
+        for (; $i < $size && $i < $next_index; $i++) {
+            $email = $emails[$i];
+            $corresponding_user = get_user_by('email', $email);
+            if (!$corresponding_user) { //the email doesn't exist in the database
+                $error_occured = true;
+                $not_sent_email .= '<br/>' . $email . ' (email doesn\'t exist in the database)';
+            } else {
+                $recipient = esc_html($corresponding_user->user_email);
+                $email = badgeos_set_goals_build_email($corresponding_user->id);
+                if (wp_mail($recipient, $email['object'], wordwrap($email['message']))) {
+                    $sent_emails .= '<br/>' . $corresponding_user->user_email;
+                } else {
+                    $error_occured = true;
+                    $not_sent_email .= '<br/>' . $corresponding_user->user_email . ' (probably server error)';
+                }
+            }
+        }
     }
-    remove_filter( 'wp_mail_content_type', 'set_html_content_type' );
+    //response to the client : 
+    $return = array(
+        'successfully_sent_emails' => $sent_emails,
+        'not_sent_emails' => $not_sent_email,
+        'type' => 'success',
+        '_continue' => $i < $size,
+        'next_index' => $next_index
+    );
+    if ($error_occured) {
+        $return['type'] = 'error occured while sending an email';
+    }
+    wp_send_json($return);
+    remove_filter('wp_mail_content_type', 'set_html_content_type');
 }
 
 /**

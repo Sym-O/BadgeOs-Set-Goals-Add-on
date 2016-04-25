@@ -55,5 +55,6 @@ function badgeos_ajax_update_goals_on_action() {
  * @return void
  */
 function badgeos_ajax_send_emailing() {
-    badgeos_set_goals_send_notifications();
+    $emails = isset( $_REQUEST['array_of_emails'] ) ? $_REQUEST['array_of_emails']  : NULL;
+    badgeos_set_goals_send_notifications($emails, $_REQUEST['current_index'], $_REQUEST['frequency'] );
 }
