@@ -152,7 +152,9 @@ class BadgeOS_Set_Goals {
                 <div id="goals_notify_output" style="display:none;"></div>
                         <input class="button" style="display:none;" id="goals_notify_cancel" value="cancel"/>
                         <br/><br/>
+                        <div style=" width: 100%;">
                         <textarea style="display:none;" id="goals_list_users_to_notify" cols="80" rows="10" ></textarea>
+                        </div>
                         <input class="button" style="display:none;" id="goals_notify_specified_users" name="" value="send to users above"/>
                         <br/><br/>
                         <input class="button" style="display:none;" id="goals_notify_all" value="&#9888; send to all &#9888;"/>
